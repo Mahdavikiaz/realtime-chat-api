@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real-Time Chat</title>
+  </head>
+  <body>
+    <h2>Real-Time Chat</h2>
+    <div>
+      <input type="text" id="roomId" placeholder="Room ID" />
+      <button onclick="joinRoom()">Join Room</button>
+    </div>
+    <div>
+      <input type="text" id="username" placeholder="Your Name" />
+      <input type="text" id="message" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <ul id="messages"></ul>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+      const socket = io('http://localhost:3000');
+
+      function joinRoom() {
+        const roomId = document.getElementById('roomId').value;
+        socket.emit('joinRoom', roomId);
+      }
+
+      function sendMessage() {
+        const roomId = document.getElementById('roomId').value;
+        const username = document.getElementById('username').value;
+        const message = document.getElementById('message').value;
+
+        socket.emit('sendMessage', { roomId, username, message });
+      }
+
+      socket.on('receiveMessage', (data) => {
+        const messages = document.getElementById('messages');
+        const li = document.createElement('li');
+        li.textContent = `[${data.timestamp}] ${data.username}: ${data.message}`;
+        messages.appendChild(li);
+      });
+
+      socket.on('message', (message) => {
+        console.log(message);
+      });
+    </script>
+  </body>
+</html>
